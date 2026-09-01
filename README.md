@@ -124,7 +124,7 @@ Recovery Complete
 이는 네트워크 운영이 단순 복구가 아니라
 모니터링 → 진단 → 대응 → 검증의 반복 과정이라고 판단했기 때문입니다.
 
-5. Simulated Network Topology
+## 5. Simulated Network Topology
 
 가상 네트워크는 Core, Aggregation, Edge 계층으로 구성했습니다.
 
@@ -259,9 +259,9 @@ Traffic이 많은 서비스는 Utilization을 우선적으로 확인하도록 �
 ### 8-2. 패키지 설치
 
 ```bash
-pip install -r requirements.tx
+pip install -r requirements.txt
 ```
-8-3. 주요 기능 실행
+### 8-3. 주요 기능 실행
 
 실제 Ping 기반 품질 데이터 수집
 ```bash
