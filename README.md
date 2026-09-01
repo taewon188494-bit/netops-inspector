@@ -286,3 +286,42 @@ streamlit run dashboard.py
 
 각 모듈은 기능별로 분리되어 있어 개별 실행이 가능하며,
 일부 기능은 network_simulator.py를 중심으로 연계해 동작하도록 구성했습니다.
+
+## 9. Execution Results
+
+프로젝트의 주요 동작 결과는 아래와 같이 확인할 수 있습니다.
+
+### 9-1. 전체 운영 상태
+
+생성된 Traffic Pattern, Incident, Device 상태, Capacity 상태와 Change 결과를 한 화면에서 요약하도록 구성했습니다.
+
+![Overview](images/overview.png)
+
+### 9-2. 장애 발생 시 Topology 상태
+
+Incident 발생 시 영향을 받는 장비와 Link 상태를 Topology에 표시하고,
+CPU, Memory, Health, Config 등 장비 상태를 함께 확인할 수 있도록 구성했습니다.
+
+![Topology Incident](images/topology_incident.png)
+
+### 9-3. 장애 원인 후보 분석
+
+발생한 장애 유형을 진단 로직이 미리 알지 못한 상태에서
+관측된 Metric을 바탕으로 Root Cause Candidate를 제시하도록 구현했습니다.
+
+아래 예시에서는 AGG-02의 CPU Usage가 95%까지 증가한 상태를 확인하고
+Device Overload를 원인 후보로 판단합니다.
+
+![Incident Analysis](images/incident_analysis.png)
+
+### 9-4. 변경 전 Pre-check
+
+Network 변경은 바로 실행하지 않고 Pre-check를 먼저 수행하도록 구성했습니다.
+
+변경 전 상태가 기준을 만족하지 못하면 Apply와 Post-check를 진행하지 않고
+변경 작업을 중단하도록 했습니다.
+
+![Change Workflow](images/change_workflow.png)
+
+이는 이미 이상 상태인 Network에 추가 변경을 수행할 경우
+장애 영향이 커질 수 있다고 판단했기 때문입니다.
