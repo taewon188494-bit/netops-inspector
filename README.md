@@ -75,3 +75,72 @@ Pre-check → Change → Post-check → Success / Rollback
 
 네트워크 변경 자체가 새로운 장애나 품질 저하의 원인이 될 수 있기 때문에,
 변경 수행뿐 아니라 변경 이후의 정상화 검증까지 포함해야 한다고 판단했습니다.
+
+## 3. 서비스별 네트워크 품질 판단
+
+네트워크 품질은 모든 서비스에서 동일한 기준으로 평가하기 어렵다고 판단했습니다.
+
+예를 들어 실시간 통신처럼 응답 속도가 중요한 서비스는 Latency 변화가 사용자 경험에 직접 영향을 줄 수 있고,
+데이터 전송이 중요한 서비스는 Packet Loss 증가가 재전송과 품질 저하로 이어질 수 있습니다.
+또한 Traffic이 많은 서비스에서는 Link Utilization 증가가 Congestion 가능성을 판단하는 중요한 지표가 될 수 있습니다.
+
+| Service Type | 우선 확인 Metric | 판단 이유 |
+|---|---|---|
+| Real-time Service | Latency | 응답 지연이 사용자 경험에 직접 영향을 줄 수 있음 |
+| Data Transfer Service | Packet Loss | 손실 증가가 재전송 및 전송 품질 저하로 이어질 수 있음 |
+| High Traffic Service | Utilization | Link 부하 증가와 Congestion 가능성을 판단할 수 있음 |
+
+따라서 서비스 Flow별로 Latency, Packet Loss, Utilization을 확인하고,
+서비스 특성에 따라 중요한 Metric의 우선순위를 다르게 적용하도록 구성했습니다.
+
+단순히 Network의 Up/Down 여부만 판단하는 것이 아니라,
+연결 이후 실제 서비스 품질까지 확인하는 운영 관점을 프로젝트에 반영하고자 했습니다.
+
+## 4. Network Operation Workflow
+
+프로젝트의 전체 운영 흐름은 다음과 같이 구성했습니다.
+
+```text
+Normal Monitoring
+        ↓
+Anomaly Detection
+        ↓
+Impact Analysis
+        ↓
+Root Cause Candidate
+        ↓
+Response / Failover
+        ↓
+Post-check
+        ↓
+Service Quality Verification
+        ↓
+Recovery Complete
+
+장애를 발견한 뒤 바로 조치하는 것이 아니라,
+먼저 영향 범위와 원인 후보를 좁힌 뒤 대응하고,
+대응 이후에도 서비스 품질이 정상화됐는지 다시 확인하도록 구성했습니다.
+
+이는 네트워크 운영이 단순 복구가 아니라
+모니터링 → 진단 → 대응 → 검증의 반복 과정이라고 판단했기 때문입니다.
+
+5. Simulated Network Topology
+
+가상 네트워크는 Core, Aggregation, Edge 계층으로 구성했습니다.
+
+                 CORE-01
+                /       \
+           AGG-01-------AGG-02
+           /   \         /   \
+      EDGE-01 EDGE-02 EDGE-03 EDGE-04
+
+CORE-01 : Core Network 역할
+AGG-01, AGG-02 : Aggregation 역할
+EDGE-01 ~ EDGE-04 : 사용자 및 서비스 연결 구간
+AGG-01 ↔ AGG-02 : 장애 발생 시 활용할 수 있는 Backup Link
+
+정상 상태에서는 기본 경로를 사용하고,
+Link Failure가 발생하면 사용 가능한 우회 경로를 탐색해 Traffic을 재분배하도록 구성했습니다.
+
+Topology는 실제 데이터센터 망을 그대로 재현한 것이 아니라,
+Redundancy, Failover, Traffic 재분배 등 네트워크 운영 개념을 학습하기 위해 단순화한 구조입니다.
