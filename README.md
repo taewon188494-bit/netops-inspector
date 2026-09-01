@@ -142,5 +142,49 @@ AGG-01 ↔ AGG-02 : 장애 발생 시 활용할 수 있는 Backup Link
 정상 상태에서는 기본 경로를 사용하고,
 Link Failure가 발생하면 사용 가능한 우회 경로를 탐색해 Traffic을 재분배하도록 구성했습니다.
 
+## 6. Project Structure
+
+프로젝트는 기능별로 모듈을 분리해 구성했습니다.
+
+```text
+netops-inspector/
+├─ collect_ping.py
+├─ analyze_metrics.py
+├─ detect_anomaly.py
+├─ network_simulator.py
+├─ traffic_trend_analyzer.py
+├─ device_health_checker.py
+├─ failover_analyzer.py
+├─ change_analyzer.py
+├─ change_workflow_manager.py
+├─ incident_manager.py
+├─ time_series_simulator.py
+├─ service_quality_analyzer.py
+├─ event_alarm_manager.py
+├─ integrated_operations_report.py
+├─ network_inventory.py
+├─ dashboard.py
+├─ network_metrics.jsonl
+└─ requirements.txt
+
+| Module                            | 역할                                            |
+| --------------------------------- | --------------------------------------------- |
+| `collect_ping.py`                 | Windows Ping을 실행해 RTT와 Packet Loss 수집         |
+| `analyze_metrics.py`              | 누적된 품질 지표의 변화 분석                              |
+| `detect_anomaly.py`               | Threshold 기반 이상 징후 탐지                         |
+| `network_simulator.py`            | 가상 Topology, Traffic, 장애 상황 생성                |
+| `traffic_trend_analyzer.py`       | Traffic 변화와 혼잡 가능성 분석                         |
+| `device_health_checker.py`        | CPU, Memory 등 가상 장비 상태 확인                     |
+| `failover_analyzer.py`            | Link Failure 이후 Backup Path 및 품질 분석           |
+| `change_analyzer.py`              | Capacity 변경 전후 상태 비교                          |
+| `change_workflow_manager.py`      | Pre-check, Change, Post-check, Rollback 흐름 관리 |
+| `incident_manager.py`             | 장애 탐지부터 대응까지 Incident Workflow 수행             |
+| `time_series_simulator.py`        | 시간 흐름에 따른 Metric 변화 생성                        |
+| `service_quality_analyzer.py`     | 서비스별 E2E 품질 분석                                |
+| `event_alarm_manager.py`          | Metric 변화 기반 Event 탐지 및 Alarm 기록              |
+| `integrated_operations_report.py` | 주요 운영 결과를 통합해 정리                              |
+| `network_inventory.py`            | 가상 Network 자원 및 구성 정보 관리                      |
+| `dashboard.py`                    | 주요 결과를 Streamlit 화면으로 시각화                     |
+
 Topology는 실제 데이터센터 망을 그대로 재현한 것이 아니라,
 Redundancy, Failover, Traffic 재분배 등 네트워크 운영 개념을 학습하기 위해 단순화한 구조입니다.
