@@ -116,7 +116,7 @@ Post-check
 Service Quality Verification
         ↓
 Recovery Complete
-
+```
 장애를 발견한 뒤 바로 조치하는 것이 아니라,
 먼저 영향 범위와 원인 후보를 좁힌 뒤 대응하고,
 대응 이후에도 서비스 품질이 정상화됐는지 다시 확인하도록 구성했습니다.
@@ -166,7 +166,7 @@ netops-inspector/
 ├─ dashboard.py
 ├─ network_metrics.jsonl
 └─ requirements.txt
-
+```
 | Module                            | 역할                                            
 | --------------------------------- | --------------------------------------------- 
 | `collect_ping.py`                 | Windows Ping을 실행해 RTT와 Packet Loss 수집         
@@ -260,32 +260,40 @@ Traffic이 많은 서비스는 Utilization을 우선적으로 확인하도록 �
 
 ```bash
 pip install -r requirements.tx
-
+```
 8-3. 주요 기능 실행
 
 실제 Ping 기반 품질 데이터 수집
+```bash
 python collect_ping.py
-
+```
 저장된 Metric 분석
+```bash
 python analyze_metrics.py
-
+```
 이상 징후 탐지
+```bash
 python detect_anomaly.py
-
+```
 가상 네트워크 및 장애 시나리오 실행
+```bash
 python network_simulator.py
-
+```
 Incident Workflow 실행
+```bash
 python incident_manager.py
-
+```
 서비스별 품질 분석
+```bash
 python service_quality_analyzer.py
-
+```
 Streamlit Dashboard 실행
+```bash
 streamlit run dashboard.py
-
+```
 각 모듈은 기능별로 분리되어 있어 개별 실행이 가능하며,
 일부 기능은 network_simulator.py를 중심으로 연계해 동작하도록 구성했습니다.
+
 
 ## 9. Execution Results
 
