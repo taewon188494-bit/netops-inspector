@@ -142,6 +142,9 @@ AGG-01 ↔ AGG-02 : 장애 발생 시 활용할 수 있는 Backup Link
 정상 상태에서는 기본 경로를 사용하고,
 Link Failure가 발생하면 사용 가능한 우회 경로를 탐색해 Traffic을 재분배하도록 구성했습니다.
 
+Topology는 실제 데이터센터 망을 그대로 재현한 것이 아니라,
+Redundancy, Failover, Traffic 재분배 등 네트워크 운영 개념을 학습하기 위해 단순화한 구조입니다.
+
 ## 6. Project Structure
 
 프로젝트는 기능별로 모듈을 분리해 구성했습니다.
@@ -185,9 +188,6 @@ netops-inspector/
 | `integrated_operations_report.py` | 주요 운영 결과를 통합해 정리                              
 | `network_inventory.py`            | 가상 Network 자원 및 구성 정보 관리                      
 | `dashboard.py`                    | 주요 결과를 Streamlit 화면으로 시각화                     
-
-Topology는 실제 데이터센터 망을 그대로 재현한 것이 아니라,
-Redundancy, Failover, Traffic 재분배 등 네트워크 운영 개념을 학습하기 위해 단순화한 구조입니다.
 
 ## 7. My Role & Engineering Decisions
 
