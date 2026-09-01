@@ -21,3 +21,57 @@ utilization, latency, packet loss, CPU, memory 등 여러 지표를 기반으로
 > 실제 측정 영역은 PC에서 수행한 ICMP Ping 결과입니다.
 > Topology, Traffic, Device 상태, 장애 상황 등은
 > 네트워크 운영 과정을 학습하기 위한 simulation입니다.
+
+## 2. 핵심 구현 기능
+
+### 2-1. 네트워크 품질 모니터링
+
+Windows Ping 결과에서 RTT와 Packet Loss를 추출하고 JSONL 형태로 누적 저장합니다.
+
+수집한 값을 시간 순서로 비교하여 평상시 상태와 품질 변화 여부를 확인하고,
+Threshold 기반으로 이상 징후를 탐지하도록 구성했습니다.
+
+### 2-2. 장애 시나리오 및 원인 후보 분석
+
+가상 네트워크에서는 다음 장애 중 하나가 발생하도록 구현했습니다.
+
+- Congestion
+- Link Failure
+- Device Overload
+
+장애를 발생시키는 기능과 원인을 진단하는 기능을 분리했습니다.
+
+따라서 진단 로직은 어떤 장애가 발생했는지 미리 알지 못한 상태에서
+
+- Link Utilization
+- Latency
+- Packet Loss
+- Device CPU / Memory
+- Link Status
+
+등의 관측 값을 이용해 원인 후보를 판단합니다.
+
+실제 네트워크 운영에서도 장애의 정답을 미리 알고 분석하는 것이 아니라,
+관측 가능한 여러 지표를 통해 문제 범위를 좁혀야 한다고 판단했기 때문입니다.
+
+### 2-3. Failover 이후 품질 재검증
+
+Link Failure가 발생하면 사용 가능한 Backup Path를 탐색하고 Traffic을 우회시킵니다.
+
+우회 성공 여부만 확인하지 않고,
+우회 경로의 Utilization과 Latency, Packet Loss를 다시 평가하도록 구성했습니다.
+
+장애를 피하기 위해 Traffic을 다른 경로로 전환하더라도
+새로운 경로의 부하가 증가해 서비스 품질이 저하될 수 있다고 판단했기 때문입니다.
+
+### 2-4. 네트워크 변경 전후 검증
+
+가상 Link Capacity 변경 과정은 다음 순서로 구현했습니다.
+
+Pre-check → Change → Post-check → Success / Rollback
+
+변경 전 상태를 먼저 확인하고,
+변경 이후 품질이 기준을 만족하지 못하면 기존 상태로 복구하도록 구성했습니다.
+
+네트워크 변경 자체가 새로운 장애나 품질 저하의 원인이 될 수 있기 때문에,
+변경 수행뿐 아니라 변경 이후의 정상화 검증까지 포함해야 한다고 판단했습니다.
