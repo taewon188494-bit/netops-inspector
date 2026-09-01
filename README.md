@@ -167,24 +167,83 @@ netops-inspector/
 ├─ network_metrics.jsonl
 └─ requirements.txt
 
-| Module                            | 역할                                            |
-| --------------------------------- | --------------------------------------------- |
-| `collect_ping.py`                 | Windows Ping을 실행해 RTT와 Packet Loss 수집         |
-| `analyze_metrics.py`              | 누적된 품질 지표의 변화 분석                              |
-| `detect_anomaly.py`               | Threshold 기반 이상 징후 탐지                         |
-| `network_simulator.py`            | 가상 Topology, Traffic, 장애 상황 생성                |
-| `traffic_trend_analyzer.py`       | Traffic 변화와 혼잡 가능성 분석                         |
-| `device_health_checker.py`        | CPU, Memory 등 가상 장비 상태 확인                     |
-| `failover_analyzer.py`            | Link Failure 이후 Backup Path 및 품질 분석           |
-| `change_analyzer.py`              | Capacity 변경 전후 상태 비교                          |
-| `change_workflow_manager.py`      | Pre-check, Change, Post-check, Rollback 흐름 관리 |
-| `incident_manager.py`             | 장애 탐지부터 대응까지 Incident Workflow 수행             |
-| `time_series_simulator.py`        | 시간 흐름에 따른 Metric 변화 생성                        |
-| `service_quality_analyzer.py`     | 서비스별 E2E 품질 분석                                |
-| `event_alarm_manager.py`          | Metric 변화 기반 Event 탐지 및 Alarm 기록              |
-| `integrated_operations_report.py` | 주요 운영 결과를 통합해 정리                              |
-| `network_inventory.py`            | 가상 Network 자원 및 구성 정보 관리                      |
-| `dashboard.py`                    | 주요 결과를 Streamlit 화면으로 시각화                     |
+| Module                            | 역할                                            
+| --------------------------------- | --------------------------------------------- 
+| `collect_ping.py`                 | Windows Ping을 실행해 RTT와 Packet Loss 수집         
+| `analyze_metrics.py`              | 누적된 품질 지표의 변화 분석                              
+| `detect_anomaly.py`               | Threshold 기반 이상 징후 탐지                         
+| `network_simulator.py`            | 가상 Topology, Traffic, 장애 상황 생성                
+| `traffic_trend_analyzer.py`       | Traffic 변화와 혼잡 가능성 분석                         
+| `device_health_checker.py`        | CPU, Memory 등 가상 장비 상태 확인                     
+| `failover_analyzer.py`            | Link Failure 이후 Backup Path 및 품질 분석           
+| `change_analyzer.py`              | Capacity 변경 전후 상태 비교                          
+| `change_workflow_manager.py`      | Pre-check, Change, Post-check, Rollback 흐름 관리 
+| `incident_manager.py`             | 장애 탐지부터 대응까지 Incident Workflow 수행             
+| `time_series_simulator.py`        | 시간 흐름에 따른 Metric 변화 생성                        
+| `service_quality_analyzer.py`     | 서비스별 E2E 품질 분석                                
+| `event_alarm_manager.py`          | Metric 변화 기반 Event 탐지 및 Alarm 기록              
+| `integrated_operations_report.py` | 주요 운영 결과를 통합해 정리                              
+| `network_inventory.py`            | 가상 Network 자원 및 구성 정보 관리                      
+| `dashboard.py`                    | 주요 결과를 Streamlit 화면으로 시각화                     
 
 Topology는 실제 데이터센터 망을 그대로 재현한 것이 아니라,
 Redundancy, Failover, Traffic 재분배 등 네트워크 운영 개념을 학습하기 위해 단순화한 구조입니다.
+
+## 7. My Role & Engineering Decisions
+
+Python 코드 제작에는 Codex를 활용했지만,
+프로젝트의 운용 시나리오와 장애 판단 기준은 직접 설계하고
+실행 결과를 확인하며 개선 방향을 결정했습니다.
+
+특히 다음과 같은 기준을 두고 프로젝트 구조를 설계했습니다.
+
+### 7-1. 장애 생성부와 진단부 분리
+
+Congestion, Link Failure, Device Overload 중 하나가 발생하도록 구성하되,
+진단 로직은 어떤 장애가 발생했는지 사전에 알 수 없도록 분리했습니다.
+
+실제 네트워크 운영에서도 장애의 정답을 알고 분석하는 것이 아니라,
+관측 가능한 상태를 바탕으로 원인을 추론해야 한다고 판단했기 때문입니다.
+
+### 7-2. 여러 Metric을 함께 사용한 원인 분석
+
+하나의 Metric만으로 장애 원인을 판단하지 않고
+
+- Utilization
+- Latency
+- Packet Loss
+- CPU
+- Memory
+- Link Status
+
+등을 함께 확인하도록 구성했습니다.
+
+E2E 서비스 품질 저하는 여러 원인이 복합적으로 영향을 줄 수 있으므로,
+단일 지표보다 여러 상태 정보를 함께 비교해야 한다고 판단했습니다.
+
+### 7-3. 대응 이후 품질 재검증
+
+Link Failure 이후 Backup Path로 Traffic을 우회한 뒤
+Connectivity만 확인하지 않고 Utilization, Latency, Packet Loss를 다시 평가했습니다.
+
+우회 경로의 부하가 증가하면 연결은 복구되더라도
+서비스 품질이 저하될 수 있다고 판단했기 때문입니다.
+
+### 7-4. 변경 전후 검증과 Rollback
+
+Capacity 변경 과정에 Pre-check와 Post-check를 두고,
+변경 이후 상태가 기준을 만족하지 못하면 Rollback하도록 구성했습니다.
+
+네트워크 변경 자체도 새로운 장애나 품질 저하의 원인이 될 수 있으므로,
+변경 성공 여부보다 변경 이후의 정상 상태 확인이 중요하다고 판단했습니다.
+
+### 7-5. 서비스 특성에 따른 품질 기준 구분
+
+모든 서비스에서 같은 Metric을 우선해서 볼 수 없다고 판단했습니다.
+
+지연에 민감한 서비스는 Latency,
+데이터 손실에 민감한 서비스는 Packet Loss,
+Traffic이 많은 서비스는 Utilization을 우선적으로 확인하도록 구분했습니다.
+
+이를 통해 Network의 Up/Down 여부뿐 아니라
+서비스 특성을 고려한 E2E 품질 판단을 프로젝트에 반영했습니다.
