@@ -247,3 +247,42 @@ Traffic이 많은 서비스는 Utilization을 우선적으로 확인하도록 �
 
 이를 통해 Network의 Up/Down 여부뿐 아니라
 서비스 특성을 고려한 E2E 품질 판단을 프로젝트에 반영했습니다.
+
+## 8. How to Run
+
+### 8-1. 실행 환경
+
+- Python 3.x
+- Windows 기준
+- 필요한 패키지는 `requirements.txt` 참고
+
+### 8-2. 패키지 설치
+
+```bash
+pip install -r requirements.tx
+
+8-3. 주요 기능 실행
+
+실제 Ping 기반 품질 데이터 수집
+python collect_ping.py
+
+저장된 Metric 분석
+python analyze_metrics.py
+
+이상 징후 탐지
+python detect_anomaly.py
+
+가상 네트워크 및 장애 시나리오 실행
+python network_simulator.py
+
+Incident Workflow 실행
+python incident_manager.py
+
+서비스별 품질 분석
+python service_quality_analyzer.py
+
+Streamlit Dashboard 실행
+streamlit run dashboard.py
+
+각 모듈은 기능별로 분리되어 있어 개별 실행이 가능하며,
+일부 기능은 network_simulator.py를 중심으로 연계해 동작하도록 구성했습니다.
